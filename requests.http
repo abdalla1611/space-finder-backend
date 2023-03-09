@@ -2,11 +2,17 @@
 GET {{endpoint}}/hello/
 ###
 
+
+GET {{endpoint}}/spaces/
+###
+
+GET {{endpoint}}/spaces?location=Nazareth
+###
 POST {{endpoint}}/spaces/
 Content-Type: application/json
 
 {
-    "location": "london",
+    "location": "Nazareth",
     "name": "best location"
 }
 ###

@@ -14,21 +14,15 @@ export class SpaceStack extends Stack{
         tableName: 'SpacesTable',
         primaryKey: 'spaceId',
         createLambdaPath: 'Create',
-
+        readLambdaPath: 'Read',
+        secondaryIndexes: ['location']
     })
 
     
     constructor(scope: Construct,id: string ,props: StackProps){
         super(scope, id, props)
 
-        // const helloLambda = new LambdaFunction(this, 'hello lambda', {
-        //     runtime: Runtime.NODEJS_18_X,
-        //     code: Code.fromAsset(join(__dirname, '..', 'services', 'hello')),
-        //     handler: 'hello.main'
-        // })
-
-
-
+     
         const  nodeJSLambda = new NodejsFunction(this,'hello node-js',{
             entry:join(__dirname, '..', 'services', 'node-lambda', 'hello.ts'),
             handler: 'handler'
@@ -51,7 +45,7 @@ export class SpaceStack extends Stack{
         // spaces API integration
         const spaceResource = this.api.root.addResource('spaces')
         spaceResource.addMethod('POST', this.spacesTable.createLambdaIntegration)
-
+        spaceResource.addMethod('GET',this.spacesTable.readLambdaIntegration)
 
     }
     
