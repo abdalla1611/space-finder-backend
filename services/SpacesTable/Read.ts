@@ -29,6 +29,7 @@ async function handler(event:APIGatewayProxyEvent, context: Context): Promise<AP
         }
         
     } catch (error) {
+        result.statusCode = 500;
         result.body = error.message;
     }
     

@@ -27,8 +27,7 @@
   },
   "dependencies": {
     "@types/aws-lambda": "^8.10.111",
-    "@types/uuid": "^9.0.1",
-    "aws-sdk": "^2.1329.0",
-    "uuid": "^9.0.0"
+    "aws-sdk": "^2.1329.0"
+    
   }
 }

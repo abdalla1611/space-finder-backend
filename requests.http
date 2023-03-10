@@ -5,8 +5,16 @@ GET {{endpoint}}/hello/
 
 GET {{endpoint}}/spaces/
 ###
-
 GET {{endpoint}}/spaces?location=Nazareth
+
+###
+PUT  {{endpoint}}/spaces?location=Nazareth
+Content-Type: application/json
+
+{
+    "location": "beer sheva",
+    "name": "best location"
+}
 ###
 POST {{endpoint}}/spaces/
 Content-Type: application/json
