@@ -1,5 +1,8 @@
 @endpoint = https://c0mog860j3.execute-api.us-east-2.amazonaws.com/prod
+
+@token = the jwToken
 GET {{endpoint}}/hello/
+Authorization: {{token}}
 ###
 
 
