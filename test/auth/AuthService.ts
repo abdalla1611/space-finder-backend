@@ -19,6 +19,6 @@ export class AuthService{
     public async login(username: string,  password: string){
 
         const user = await Auth.signIn(username,password) as CognitoUser;
-        return user ;
+         return user ;
     }
 }
