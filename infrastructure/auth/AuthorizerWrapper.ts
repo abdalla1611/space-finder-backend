@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 import { RestApi, CognitoUserPoolsAuthorizer } from "aws-cdk-lib/aws-apigateway";
 import { UserPool, UserPoolClient, CfnUserPoolGroup } from "aws-cdk-lib/aws-cognito";
 import { CfnOutput } from "aws-cdk-lib";
+import { IdentityPoolWrapper } from "./IdentityPoolWrapper";
 
 export class AuthorizerWrapper{
 
@@ -10,7 +11,8 @@ export class AuthorizerWrapper{
     private api: RestApi;
     private userPool: UserPool;
     private userPoolClient: UserPoolClient;
-    public authorizer :CognitoUserPoolsAuthorizer
+    public authorizer :CognitoUserPoolsAuthorizer;
+    private identityPoolWrapper: IdentityPoolWrapper;
 
     constructor(scope: Construct, api:RestApi){
         this.scope = scope;
@@ -22,6 +24,7 @@ export class AuthorizerWrapper{
         this.createUserPool();
         this.addUserPoolClient();
         this.createAuthorizer();
+        this.initializeIdentityPoolWrapper();
         this.createAdminsGroup();
     }
 
@@ -29,7 +32,8 @@ export class AuthorizerWrapper{
 
         new CfnUserPoolGroup(this.scope,'admins', {
             groupName: 'admins',
-            userPoolId: this.userPool.userPoolId
+            userPoolId: this.userPool.userPoolId,
+            roleArn:this.identityPoolWrapper.adminRole.roleArn
         })
     }
 
@@ -73,6 +77,15 @@ export class AuthorizerWrapper{
         new CfnOutput(this.scope,'UserPoolID',{
             value:this.userPool.userPoolId
         });
+
+    }
+
+    private initializeIdentityPoolWrapper(){
+        this.identityPoolWrapper = new IdentityPoolWrapper(
+            this.scope,
+            this.userPool,
+            this.userPoolClient
+        )
 
     }
 

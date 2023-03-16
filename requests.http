@@ -12,12 +12,12 @@ GET {{endpoint}}/spaces/
 GET {{endpoint}}/spaces?location=Nazareth
 
 ###
-PUT  {{endpoint}}/spaces?location=Nazareth
+PUT  {{endpoint}}/spaces?spaceId=ft63hgoxsnt
 Content-Type: application/json
 
 {
-    "location": "beer sheva",
-    "name": "best location"
+    "location": "haifa",
+    "name": "best beer sheva location"
 }
 ###
 POST {{endpoint}}/spaces/
