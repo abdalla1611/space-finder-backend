@@ -2265,7 +2265,7 @@
                 },
                 "roleMappings": {
                   "adminsMapping": {
-                    "type": "token",
+                    "type": "Token",
                     "ambiguousRoleResolution": "AuthenticatedRole",
                     "identityProvider": {
                       "Fn::Join": [
