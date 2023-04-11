@@ -12,6 +12,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { AuthorizerWrapper } from './auth/AuthorizerWrapper'
 import { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3'
+import { WebAppDeployment } from './WebAppDeployment'
 
 export class SpaceStack extends Stack {
   private api = new RestApi(this, 'SpaceApi')
@@ -38,6 +39,8 @@ export class SpaceStack extends Stack {
       this.api,
       this.spacePhotoBucket.bucketArn + '/*'
     )
+
+    new WebAppDeployment(this, this.suffix)
 
     const optionWithAuth: MethodOptions = {
       authorizationType: AuthorizationType.COGNITO,
