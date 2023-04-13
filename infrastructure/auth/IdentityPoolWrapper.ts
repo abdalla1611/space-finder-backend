@@ -22,12 +22,12 @@ export class IdentityPoolWrapper {
     scope: Construct,
     userPool: UserPool,
     userPoolClient: UserPoolClient,
-    photoBuckeTArn: string
+    photoBucketArn: string
   ) {
     this.scope = scope
     this.userPool = userPool
     this.userPoolClient = userPoolClient
-    this.photoBucketArn = photoBuckeTArn
+    this.photoBucketArn = photoBucketArn
     this.initialize()
   }
 
@@ -103,7 +103,7 @@ export class IdentityPoolWrapper {
       new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['s3:PutObject', 's3:PutObjectAcl'],
-        resources: [this.photoBucketArn],
+        resources: [this.photoBucketArn + '/*'],
       })
     )
   }
