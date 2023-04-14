@@ -15,3 +15,12 @@ export function addCorsHeader(result: APIGatewayProxyResult) {
     'Access-Control-Allow-Methods': '*',
   }
 }
+
+export function isIncludedInGroup(group: string, event: APIGatewayProxyEvent) {
+  const groups = event.requestContext.authorizer?.claims['cognito:groups'];
+  if (groups) {
+      return (groups as string).includes(group)
+  } else {
+      return false
+  }
+}

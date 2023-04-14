@@ -24,6 +24,15 @@ export class SpaceStack extends Stack {
     deleteLambdaPath: 'Delete',
     secondaryIndexes: ['location'],
   })
+  private reserveationTable = new GenericTable(this, {
+    tableName: 'ReservationTable',
+    primaryKey: 'reservationId',
+    createLambdaPath: 'Create',
+    readLambdaPath: 'Read',
+    updateLambdaPath: 'Update',
+    deleteLambdaPath: 'Delete',
+    secondaryIndexes: ['user'],
+  })
 
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props)
@@ -51,6 +60,13 @@ export class SpaceStack extends Stack {
     spaceResource.addMethod('GET', this.spacesTable.readLambdaIntegration,optionWithAuth)
     spaceResource.addMethod('PUT', this.spacesTable.updateLambdaIntegration,optionWithAuth)
     spaceResource.addMethod('DELETE', this.spacesTable.deleteLambdaIntegration,optionWithAuth)
+
+    const reservationResource = this.api.root.addResource('reservations')
+    reservationResource.addMethod('POST', this.reserveationTable.createLambdaIntegration,optionWithAuth)
+    reservationResource.addMethod('GET', this.reserveationTable.readLambdaIntegration,optionWithAuth)
+    reservationResource.addMethod('PUT', this.reserveationTable.updateLambdaIntegration,optionWithAuth)
+    reservationResource.addMethod('DELETE', this.reserveationTable.deleteLambdaIntegration,optionWithAuth)
+
   }
 
   private initializeSuffix() {
