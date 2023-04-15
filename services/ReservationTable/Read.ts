@@ -5,7 +5,7 @@ import {
   Context,
   APIGatewayProxyEventQueryStringParameters,
 } from 'aws-lambda'
-import { addCorsHeader } from '../Shared/Utils'
+import { addCorsHeader, isIncludedInGroup } from '../Shared/Utils'
 
 const TABLE_NAME = process.env.TABLE_NAME
 const PRIMARY_KEY = process.env.PRIMARY_KEY
@@ -15,6 +15,7 @@ async function handler(
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> {
+
   const result: APIGatewayProxyResult = {
     statusCode: 200,
     body: `hello from dynamoDB`,
@@ -28,7 +29,13 @@ async function handler(
         result.body = await queryWithSecondaryPartition(event.queryStringParameters)
       }
     } else {
-      result.body = await scanTable()
+      if(isIncludedInGroup('admins',event)){
+        result.body = await scanTable()
+      }
+      else{
+        result.statusCode = 403
+        result.body = JSON.stringify('not authorized!')
+      }
     }
   } catch (error) {
     result.statusCode = 500
@@ -38,9 +45,7 @@ async function handler(
   return result
 }
 
-async function queryWithSecondaryPartition(
-  queryParams: APIGatewayProxyEventQueryStringParameters
-) {
+async function queryWithSecondaryPartition(queryParams: APIGatewayProxyEventQueryStringParameters) {
   const queryKey = Object.keys(queryParams)[0]
   const queryValue = queryParams[queryKey]
   const queryResponse = await dbClient
@@ -59,9 +64,7 @@ async function queryWithSecondaryPartition(
   return JSON.stringify(queryResponse.Items)
 }
 
-async function queryWithPrimaryPartition(
-  queryParams: APIGatewayProxyEventQueryStringParameters
-) {
+async function queryWithPrimaryPartition(queryParams: APIGatewayProxyEventQueryStringParameters) {
   const keyValue = queryParams[PRIMARY_KEY!]
   const queryResponse = await dbClient
     .query({

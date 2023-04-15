@@ -1,6 +1,6 @@
 import { DynamoDB } from 'aws-sdk'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda'
-import { addCorsHeader, GetEventBody } from '../Shared/Utils'
+import { addCorsHeader, GetEventBody, isIncludedInGroup } from '../Shared/Utils'
 
 const TABLE_NAME = process.env.TABLE_NAME
 const PRIMARY_KEY = process.env.PRIMARY_KEY
@@ -17,17 +17,20 @@ async function handler(
   addCorsHeader(result)
 
   try {
-    const requestBody = GetEventBody(event)
-    const spaceId = event.queryStringParameters?.[PRIMARY_KEY!]
+    if(isIncludedInGroup('admins',event)){
 
-    if (requestBody && spaceId) {
+    const requestBody = GetEventBody(event)
+    const newState = 'state' in requestBody ? requestBody.state : ''
+    const reservationId = event.queryStringParameters?.[PRIMARY_KEY!]
+
+    if (reservationId && isValidState(newState)) {
       const requestBodyKey = Object.keys(requestBody)[0]
       const requestBodyValue = requestBody[requestBodyKey]
       const updateResult = await dbClient
         .update({
           TableName: TABLE_NAME!,
           Key: {
-            [PRIMARY_KEY!]: spaceId,
+            [PRIMARY_KEY!]: reservationId,
           },
           UpdateExpression: 'set #zzNew  = :new',
           ExpressionAttributeValues: {
@@ -41,12 +44,31 @@ async function handler(
         .promise()
       result.body = JSON.stringify(updateResult)
     }
+    else{
+      result.statusCode = 400
+      result.body = JSON.stringify('Invalid Request')
+    }
+  }
+  else{
+    result.statusCode = 403
+    result.body = JSON.stringify('Not Authorized!')
+  }
   } catch (error) {
     result.statusCode = 500
     result.body = error.message
   }
 
   return result
+}
+
+function isValidState(state: any){
+  if(state == 'PENDING' ||
+     state == 'APPROVED' ||
+     state == 'CANCELED'){
+      return true
+     } else{
+      return false
+     }
 }
 
 export { handler }
