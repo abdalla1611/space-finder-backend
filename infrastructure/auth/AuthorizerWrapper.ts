@@ -3,6 +3,7 @@ import { RestApi, CognitoUserPoolsAuthorizer } from 'aws-cdk-lib/aws-apigateway'
 import { UserPool, UserPoolClient, CfnUserPoolGroup } from 'aws-cdk-lib/aws-cognito'
 import { CfnOutput } from 'aws-cdk-lib'
 import { IdentityPoolWrapper } from './IdentityPoolWrapper'
+import { Policies } from '../Policies'
 
 export class AuthorizerWrapper {
   private scope: Construct
@@ -11,11 +12,12 @@ export class AuthorizerWrapper {
   private userPoolClient: UserPoolClient
   public authorizer: CognitoUserPoolsAuthorizer
   private identityPoolWrapper: IdentityPoolWrapper
-  private photoBucketArn: string
-  constructor(scope: Construct, api: RestApi, photoBucketArn: string) {
+  private policies: Policies
+
+  constructor(scope: Construct, api: RestApi, policies: Policies) {
     this.scope = scope
     this.api = api
-    this.photoBucketArn = photoBucketArn
+    this.policies = policies
     this.initialize()
   }
 
@@ -80,7 +82,7 @@ export class AuthorizerWrapper {
       this.scope,
       this.userPool,
       this.userPoolClient,
-      this.photoBucketArn
+      this.policies
     )
   }
 }

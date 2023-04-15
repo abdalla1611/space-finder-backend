@@ -29,11 +29,11 @@ async function handler(event: APIGatewayProxyEvent, context: Context): Promise<A
     })
   } catch (error) {
     if (error instanceof MissingFieldErorr) {
-      result.statusCode = 403
+      result.statusCode = 400
     } else {
       result.statusCode = 500
     }
-    result.body = error.message
+    result.body = JSON.stringify(error.message)
   }
   return result
 }

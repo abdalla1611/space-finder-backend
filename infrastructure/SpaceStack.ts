@@ -4,17 +4,26 @@ import {
   RestApi,
   MethodOptions,
   AuthorizationType,
+  Cors
 } from 'aws-cdk-lib/aws-apigateway'
 import { GenericTable } from './GenericTable'
 import { AuthorizerWrapper } from './auth/AuthorizerWrapper'
 import { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3'
 import { WebAppDeployment } from './WebAppDeployment'
+import { Policies } from "./Policies";
 
 export class SpaceStack extends Stack {
-  private api = new RestApi(this, 'SpaceApi')
+  private api = new RestApi(this, 'SpaceApi',{
+    defaultCorsPreflightOptions:{
+      allowOrigins: Cors.ALL_ORIGINS,
+      allowMethods:Cors.ALL_METHODS
+    }
+  })
   private authorizer: AuthorizerWrapper
   private suffix: string
   private spacePhotoBucket: Bucket
+  private profilePhotoBucket: Bucket
+  private policies: Policies
   private spacesTable = new GenericTable(this, {
     tableName: 'SpacesTable',
     primaryKey: 'spaceId',
@@ -39,10 +48,12 @@ export class SpaceStack extends Stack {
 
     this.initializeSuffix()
     this.initializeSpacesPhotoBucket()
+    this.initializeProfilePhotoBucket()
+    this.policies = new Policies(this.spacePhotoBucket, this.profilePhotoBucket)
     this.authorizer = new AuthorizerWrapper(
       this,
       this.api,
-      this.spacePhotoBucket.bucketArn
+      this.policies
     )
 
     new WebAppDeployment(this, this.suffix)
@@ -86,6 +97,22 @@ export class SpaceStack extends Stack {
       ],
     })
     new CfnOutput(this, 'spaces-photos-bucket-name', {
+      value: this.spacePhotoBucket.bucketName,
+    })
+  }
+
+  private initializeProfilePhotoBucket(){
+    this.spacePhotoBucket = new Bucket(this, 'profile-photos', {
+      bucketName: 'profile-photos' + this.suffix,
+      cors: [
+        {
+          allowedMethods: [HttpMethods.GET, HttpMethods.HEAD, HttpMethods.PUT],
+          allowedOrigins: ['*'],
+          allowedHeaders: ['*'],
+        },
+      ],
+    })
+    new CfnOutput(this, 'profile-photos-bucket-name', {
       value: this.spacePhotoBucket.bucketName,
     })
   }
